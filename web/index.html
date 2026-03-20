@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>加工单助手</title>
+
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial;
+            margin: 40px;
+            background: #f6f7fb;
+        }
+
+        /* 标题 */
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        /* 查询工具栏 */
+
+        .toolbar {
+            margin: 15px 0;
+        }
+
+        .toolbar input {
+            padding: 6px 8px;
+            width: 220px;
+        }
+
+        button {
+            padding: 6px 12px;
+            cursor: pointer;
+        }
+
+        /* 订单材料区域 */
+
+        fieldset {
+            border: 1px solid #dcdfe6;
+            border-radius: 6px;
+            background: #fff;
+            margin-bottom: 20px;
+        }
+
+        legend {
+            font-weight: bold;
+            padding: 0 6px;
+        }
+
+        /* 材料行 */
+
+        .material-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 8px 0;
+        }
+
+        .material-row span {
+            min-width: 120px;
+        }
+
+        input,
+        select {
+            padding: 4px;
+            width: 130px;
+        }
+
+        /* 标签区域 */
+
+        .label-section {
+            margin-top: 40px;
+        }
+
+        /* 卡片容器 */
+
+        .card-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        /* 标签卡片 */
+
+        .card {
+            width: 260px;
+            background: #fff;
+            border: 1px solid #e4e7ed;
+            border-radius: 8px;
+            padding: 12px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        /* 标签标题 */
+
+        .card-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        /* 标签内容 */
+
+        .card-content {
+            font-size: 13px;
+            line-height: 20px;
+        }
+
+        /* 二维码 */
+
+        .qr {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .qr img {
+            width: 110px;
+        }
+
+        /* 货架标签样式 */
+
+        .shelf-card {
+            background: #fdf6ec;
+        }
+
+        /* 打印优化 */
+
+        @media print {
+
+            body {
+                margin: 10px;
+                background: #fff;
+            }
+
+            .toolbar,
+            #container,
+            h2 {
+                display: none;
+            }
+
+            .card {
+                page-break-inside: avoid;
+            }
+
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <h2>加工单货物生成工具</h2>
+
+    <div class="toolbar">
+        <input id="orderId" placeholder="输入加工单ID">
+        <button onclick="loadOrder()">货物查询</button>
+        <button onclick="submitData()">一键生成</button>
+    </div>
+
+    <div id="container"></div>
+
+    <div class="label-section">
+        <h3>标签区域</h3>
+        <div id="cardContainer" class="card-container"></div>
+    </div>
+
+    <script>
+
+        let rows = [];
+        let specCache = {}, supplierCache = {};
+
+        /* 查询订单 */
+
+        function loadOrder() {
+
+            const id = document.getElementById("orderId").value
+            if (!id) {
+                alert("请输入加工单ID")
+                return
+            }
+
+            fetch("/api/order/" + id)
+                .then(r => r.json())
+                .then(data => {
+                    rows = data
+                    render()
+                })
+        }
+
+        /* 渲染材料 */
+
+        function render() {
+
+            const container = document.getElementById("container")
+            container.innerHTML = ""
+
+            rows.forEach((od, odIndex) => {
+
+                const fieldset = document.createElement("fieldset")
+
+                const legend = document.createElement("legend")
+                legend.innerText = "加工产物: [" + od.orderDetailId + "]" + od.targetProduct
+
+                fieldset.appendChild(legend)
+
+                od.materials.forEach((m, i) => {
+
+                    const div = document.createElement("div")
+                    div.className = "material-row"
+
+                    div.innerHTML = `
+            <span>${m.productName}</span>
+            <span>所需长度:${m.estimateCount}</span>
+
+            <select id="spec_${odIndex}_${i}"></select>
+
+            <select id="supplier_${odIndex}_${i}"></select>
+
+            <input value="${m.estimateCount}" onchange="rows[${odIndex}].materials[${i}].estimateCount=this.value">
+
+            <button onclick="duplicate(${odIndex},${i})">复制</button>
+            <button onclick="deleteMaterial(${odIndex},${i})">删除</button>
+            <button onclick="split(${odIndex},${i})">拆分</button>
+            `
+
+                    fieldset.appendChild(div)
+
+                })
+
+                container.appendChild(fieldset)
+
+            })
+
+            rows.forEach((od, odIndex) => {
+                od.materials.forEach((m, i) => {
+                    loadSpec(odIndex, i, m.productNo, m.spec)
+                    loadSupplier(odIndex, i, m.productNo, m.supplierId)
+                })
+            })
+
+        }
+
+        /* 行操作 */
+
+        function duplicate(odIndex, i) {
+            const m = JSON.parse(JSON.stringify(rows[odIndex].materials[i]))
+            rows[odIndex].materials.splice(i + 1, 0, m)
+            render()
+        }
+
+        function deleteMaterial(odIndex, i) {
+            rows[odIndex].materials.splice(i, 1)
+            render()
+        }
+
+        function split(odIndex, i) {
+
+            const n = parseInt(prompt("生成几份"))
+            if (!n || n <= 1) return
+
+            const row = rows[odIndex].materials[i]
+            const length = (row.estimateCount / n).toFixed(2)
+
+            rows[odIndex].materials.splice(i, 1)
+
+            for (let k = 0; k < n; k++) {
+                rows[odIndex].materials.splice(i + k, 0, {
+                    productNo: row.productNo,
+                    productName: row.productName,
+                    estimateCount: length,
+                    spec: row.spec,
+                    supplierId: row.supplierId,
+                    supplierName: row.supplierName
+                })
+            }
+
+            render()
+
+        }
+
+        /* 规格 */
+
+        function loadSpec(odIndex, i, productNo, defaultSpec) {
+
+            if (specCache[productNo]) {
+                renderSpec(odIndex, i, specCache[productNo], defaultSpec)
+                return
+            }
+
+            fetch("/api/spec/" + productNo)
+                .then(r => r.json())
+                .then(data => {
+                    specCache[productNo] = Array.from(new Set(data))
+                    renderSpec(odIndex, i, specCache[productNo], defaultSpec)
+                })
+
+        }
+
+        function renderSpec(odIndex, i, data, defaultSpec) {
+
+            const select = document.getElementById(`spec_${odIndex}_${i}`)
+            if (!select) return
+
+            select.innerHTML = ""
+
+            data.forEach(v => {
+                const op = document.createElement("option")
+                op.value = v
+                op.text = v
+                if (v === defaultSpec) op.selected = true
+                select.appendChild(op)
+            })
+
+        }
+
+        /* 供应商 */
+
+        function loadSupplier(odIndex, i, productNo, defaultId) {
+
+            if (supplierCache[productNo]) {
+                renderSupplier(odIndex, i, supplierCache[productNo], defaultId)
+                return
+            }
+
+            fetch("/api/supplier/" + productNo)
+                .then(r => r.json())
+                .then(data => {
+
+                    const map = new Map()
+
+                    data.forEach(s => {
+                        map.set(s.CompanyPurchaseSupplierId, s.SupplierName)
+                    })
+
+                    const arr = []
+                    map.forEach((name, id) => {
+                        arr.push({ CompanyPurchaseSupplierId: id, SupplierName: name })
+                    })
+
+                    supplierCache[productNo] = arr
+                    renderSupplier(odIndex, i, arr, defaultId)
+
+                })
+
+        }
+
+        function renderSupplier(odIndex, i, data, defaultId) {
+
+            const select = document.getElementById(`supplier_${odIndex}_${i}`)
+            if (!select) return
+
+            select.innerHTML = ""
+
+            data.forEach(v => {
+
+                const op = document.createElement("option")
+                op.value = v.CompanyPurchaseSupplierId
+                op.text = v.SupplierName
+
+                if (v.CompanyPurchaseSupplierId == defaultId)
+                    op.selected = true
+
+                select.appendChild(op)
+
+            })
+
+        }
+
+        /* 提交 */
+
+        function submitData() {
+
+            const result = []
+
+            rows.forEach(od => {
+                od.materials.forEach((m, i) => {
+
+                    const specSelect = document.getElementById(`spec_${rows.indexOf(od)}_${i}`)
+                    const spec = specSelect ? specSelect.value : m.spec
+
+                    const supplierSelect = document.getElementById(`supplier_${rows.indexOf(od)}_${i}`)
+                    const supplierId = supplierSelect ? supplierSelect.value : m.supplierId
+                    const supplierName = supplierSelect ? supplierSelect.options[supplierSelect.selectedIndex].text : m.supplierName
+
+                    result.push({
+                        productNo: m.productNo,
+                        spec: spec,
+                        supplierId: supplierId,
+                        supplierName: supplierName,
+                        length: m.estimateCount
+                    })
+                    console.log(result)
+
+                })
+            })
+
+            fetch("/api/generate", {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-FinishedOrderId': document.getElementById("orderId").value
+                },
+                body: JSON.stringify(result)
+            })
+                .then(r => r.json())
+                .then(d => {
+                    alert("生成 " + d.count + " 条数据")
+                    renderCards(d)
+                })
+
+        }
+
+        /* 渲染标签 */
+
+        function renderCards(data) {
+
+            const container = document.getElementById("cardContainer")
+            container.innerHTML = ""
+
+            data.goodsCards.forEach(c => {
+
+                const div = document.createElement("div")
+                div.className = "card"
+
+                div.innerHTML = `
+        <div class="card-title">${c.goodsName}</div>
+
+        <div class="card-content">
+        产品编码：${c.productNo}<br>
+        唯一码：${c.goodsNum}<br>
+        规格：${c.spec}<br>
+        供应商：${c.supplierName}<br>
+        长度：${c.length}
+        </div>
+
+        <div class="qr">
+        <img src="data:image/png;base64,${c.qrCode}">
+        </div>
+        `
+
+                container.appendChild(div)
+
+            })
+
+            data.shelfCards.forEach(c => {
+
+                const div = document.createElement("div")
+                div.className = "card shelf-card"
+
+                div.innerHTML = `
+        <div class="card-title">货架：${c.shelfName}</div>
+
+        <div class="qr">
+        <img src="data:image/png;base64,${c.qrCode}">
+        </div>
+        `
+
+                container.appendChild(div)
+
+            })
+
+        }
+
+    </script>
+
+</body>
+
+</html>
