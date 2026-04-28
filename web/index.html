@@ -204,6 +204,15 @@
 
                 fieldset.appendChild(legend)
 
+                const dateDiv = document.createElement("div")
+                dateDiv.style.margin = "8px 0"
+                dateDiv.innerHTML = `
+                    <label>指定涂布日期:
+                        <input type="date" id="coatingDate_${odIndex}" value="${od.coatingDate || ''}">
+                    </label>
+                `
+                fieldset.appendChild(dateDiv)
+
                 od.materials.forEach((m, i) => {
 
                     const div = document.createElement("div")
@@ -342,6 +351,10 @@
                     renderSupplier(odIndex, i, arr, defaultId)
 
                 })
+                .catch(e => {
+                    console.log(e)
+                    alert(e.message)
+                })
 
         }
 
@@ -373,13 +386,18 @@
 
             const result = []
 
-            rows.forEach(od => {
+            rows.forEach((od,odIndex) => {
+                //涂布日期
+                const coatingDate = document.getElementById(`coatingDate_${odIndex}`)?.value || null
+
                 od.materials.forEach((m, i) => {
 
-                    const specSelect = document.getElementById(`spec_${rows.indexOf(od)}_${i}`)
+                    // const specSelect = document.getElementById(`spec_${rows.indexOf(od)}_${i}`)
+                    const specSelect = document.getElementById(`spec_${odIndex}_${i}`)
                     const spec = specSelect ? specSelect.value : m.spec
 
-                    const supplierSelect = document.getElementById(`supplier_${rows.indexOf(od)}_${i}`)
+                    // const supplierSelect = document.getElementById(`supplier_${rows.indexOf(od)}_${i}`)
+                    const supplierSelect = document.getElementById(`supplier_${odIndex}_${i}`)
                     const supplierId = supplierSelect ? supplierSelect.value : m.supplierId
                     const supplierName = supplierSelect ? supplierSelect.options[supplierSelect.selectedIndex].text : m.supplierName
 
@@ -388,10 +406,10 @@
                         spec: spec,
                         supplierId: supplierId,
                         supplierName: supplierName,
-                        length: m.estimateCount
+                        length: m.estimateCount,
+                        coatingDate: coatingDate//涂布日期
                     })
-                    console.log(result)
-
+                    console.warn(coatingDate)
                 })
             })
 
@@ -403,12 +421,20 @@
                 },
                 body: JSON.stringify(result)
             })
-                .then(r => r.json())
+                .then(async r => {
+                    const data = await r.json()
+                    if (!r.ok) {
+                        throw new Error(data.detail || "请求失败")
+                    }
+                    return data
+                })
                 .then(d => {
                     alert("生成 " + d.count + " 条数据")
                     renderCards(d)
                 })
-
+                .catch(e => {
+                    alert(e.message)
+                })
         }
 
         /* 渲染标签 */

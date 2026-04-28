@@ -7,6 +7,8 @@ import redis
 import qrcode
 import base64
 from io import BytesIO
+from typing import Optional
+from datetime import datetime
 
 router = APIRouter()
 
@@ -19,6 +21,7 @@ class GenerateItem(BaseModel):
     supplierId: int
     supplierName: str
     length: float
+    coatingDate: Optional[datetime] = None
 
 def get_today_end_timestamp() -> int:
     """获取当天结束时间戳（秒）"""
@@ -52,7 +55,7 @@ def generate_qr_base64(content: str) -> str:
 def get_goods_name(product_no: str, cursor) -> str:
     """根据产品编码获取产品名称"""
     cursor.execute(
-        "SELECT goods_name as CompanyPurchaseProductName FROM store_company_purchase_goods WHERE product_no=%s LIMIT 1",
+        "select CompanyPurchaseProductName from biz_company_purchase_product where  Deleted=false  and  CompanyPurchaseProductNo=%s limit 1",
         (product_no,)
     )
     res = cursor.fetchone()
@@ -101,9 +104,10 @@ def generate(items: List[GenerateItem], request: Request):
                     "factory_name", "factory_id", "in_stock_time", "goods_status", 
                     "material_type", "is_print", "company_purchase_supplier_id",
                     "company_purchase_supplier_name", "company_purchase_finished_order_id",
-                    "create_id", "remark", "standard", "create_time", "shelf_id","product_date"
+                    "create_id", "remark", "standard", "create_time", "shelf_id","product_date","lamination_time"
                 ]
                 sql = f"INSERT INTO store_company_purchase_goods({', '.join(fields)}) VALUES ({', '.join(['%s']*len(fields))})"
+                print(item)
                 params = [
                     generate_goods_num(item.productNo),
                     item.productNo,
@@ -131,7 +135,8 @@ def generate(items: List[GenerateItem], request: Request):
                     1,
                     datetime.now(),
                     shelf_id,
-                    datetime.now()
+                    datetime.now(),
+                    item.coatingDate
                 ]
                 cursor.execute(sql, tuple(params))
                 goods_id = cursor.lastrowid
