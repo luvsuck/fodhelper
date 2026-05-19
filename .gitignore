@@ -34,3 +34,18 @@ dist-ssr
 .vscode
 publish.sh
 
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# venv
+venv/
+.env/
+.pytest_cache/
+
+# dotenv
+.env
+
+# macOS
+.DS_Store

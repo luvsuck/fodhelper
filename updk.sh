@@ -2,7 +2,7 @@
 
 set -e
 
-PROJECT_DIR="/Users/zyy/Documents/fodhelper"
+PROJECT_DIR="/Volumes/coding/java_pro/stfl/fodhelper"
 IMAGE_NAME="fodhelper:latest"
 TAR_NAME="fodhelper.tar"
 REMOTE_USER="root"
