@@ -188,6 +188,15 @@
                 })
         }
 
+        /* 当天日期（YYYY-MM-DD） */
+
+        function todayStr() {
+            const d = new Date()
+            const m = String(d.getMonth() + 1).padStart(2, "0")
+            const day = String(d.getDate()).padStart(2, "0")
+            return `${d.getFullYear()}-${m}-${day}`
+        }
+
         /* 渲染材料 */
 
         function render() {
@@ -204,11 +213,13 @@
 
                 fieldset.appendChild(legend)
 
+                const isSplit = Number(od.processType) === 3
+                const dateValue = isSplit ? todayStr() : (od.coatingDate || '')
                 const dateDiv = document.createElement("div")
                 dateDiv.style.margin = "8px 0"
                 dateDiv.innerHTML = `
-                    <label>指定涂布日期:
-                        <input type="date" id="coatingDate_${odIndex}" value="${od.coatingDate || ''}">
+                    <label>指定涂布日期${isSplit ? '（分切产物，必填）' : ''}:
+                        <input type="date" id="coatingDate_${odIndex}" value="${dateValue}" ${isSplit ? 'required' : ''}>
                     </label>
                 `
                 fieldset.appendChild(dateDiv)
@@ -383,6 +394,14 @@
         /* 提交 */
 
         function submitData() {
+
+            // 分切产物必须填写涂布日期
+            for (let i = 0; i < rows.length; i++) {
+                if (Number(rows[i].processType) === 3 && !document.getElementById(`coatingDate_${i}`)?.value) {
+                    alert("分切产物必须填写涂布日期")
+                    return
+                }
+            }
 
             const result = []
 

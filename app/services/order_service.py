@@ -6,7 +6,7 @@ def get_order_materials(finishedOrderId: int):
     try:
         with conn.cursor() as cursor:
             cursor.execute("""
-                select a.CompanyPurchaseFinishedOrderDetailId as id , a.UserMaterialBom,b.CompanyPurchaseProductName
+                select a.CompanyPurchaseFinishedOrderDetailId as id , a.UserMaterialBom,b.CompanyPurchaseProductName,b.ProcessType
                 from biz_company_purchase_finished_order_detail a
                 inner join biz_company_purchase_product b on a.CompanyPurchaseProductId=b.CompanyPurchaseProductId
                 where a.CompanyPurchaseFinishedOrderId=%s and a.Deleted=false
@@ -55,7 +55,8 @@ def get_order_materials(finishedOrderId: int):
 
                 result.append({
                     "orderDetailId": str(od_id),
-                    "targetProduct":target_product,
+                    "targetProduct": target_product,
+                    "processType": od["ProcessType"],
                     "materials": materials
                 })
 
