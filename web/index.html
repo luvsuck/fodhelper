@@ -213,7 +213,12 @@
                     if (!r.ok) throw new Error(data.detail || "请求失败")
                     return data
                 })
-                .then(d => renderCards(d))
+                .then(d => {
+                    renderCards(d)
+                    if (!d.goodsCards || d.goodsCards.length === 0) {
+                        alert("未找到对应货物")
+                    }
+                })
                 .catch(e => alert(e.message))
         }
 
