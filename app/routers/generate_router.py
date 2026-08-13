@@ -182,3 +182,49 @@ def generate(items: List[GenerateItem], request: Request):
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         conn.close()
+
+
+class GoodsNumsRequest(BaseModel):
+    goodsNums: List[str]
+
+
+@router.post("/goods-cards")
+def goods_cards(req: GoodsNumsRequest):
+    conn = get_conn()
+    try:
+        with conn.cursor() as cursor:
+            if not req.goodsNums:
+                return {"goodsCards": [], "shelfCards": []}
+
+            placeholders = ",".join(["%s"] * len(req.goodsNums))
+            cursor.execute(
+                f"""
+                select id, goods_name, product_no, goods_num,
+                       goods_specification, company_purchase_supplier_name, length_weight
+                from store_company_purchase_goods
+                where goods_num in ({placeholders})
+                """,
+                req.goodsNums,
+            )
+            rows = cursor.fetchall()
+            by_num = {r["goods_num"]: r for r in rows}
+
+            goods_cards = []
+            for num in req.goodsNums:
+                r = by_num.get(num)
+                if not r:
+                    continue
+                goods_cards.append({
+                    "goodsId": r["id"],
+                    "goodsName": r["goods_name"],
+                    "productNo": r["product_no"],
+                    "goodsNum": r["goods_num"],
+                    "spec": r["goods_specification"],
+                    "supplierName": r["company_purchase_supplier_name"],
+                    "length": float(r["length_weight"]) if r["length_weight"] is not None else None,
+                    "qrCode": generate_qr_base64(f"goods://{r['id']}?productId={r['goods_num']}"),
+                })
+
+            return {"goodsCards": goods_cards, "shelfCards": []}
+    finally:
+        conn.close()

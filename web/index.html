@@ -153,7 +153,7 @@
     <h2>加工单货物生成工具</h2>
 
     <div class="toolbar">
-        <input id="orderId" placeholder="输入加工单ID">
+        <input id="orderId" placeholder="输入加工单ID或货物唯一码">
         <button onclick="loadOrder()">货物查询</button>
         <button onclick="submitData()">一键生成</button>
     </div>
@@ -174,18 +174,47 @@
 
         function loadOrder() {
 
-            const id = document.getElementById("orderId").value
-            if (!id) {
-                alert("请输入加工单ID")
+            const raw = document.getElementById("orderId").value.trim()
+            if (!raw) {
+                alert("请输入加工单ID或货物唯一码")
                 return
             }
 
-            fetch("/api/order/" + id)
+            const goodsNums = parseGoodsNums(raw)
+            if (goodsNums.length && goodsNums.every(n => /^P/i.test(n))) {
+                loadGoodsCards(goodsNums)
+                return
+            }
+
+            fetch("/api/order/" + raw)
                 .then(r => r.json())
                 .then(data => {
                     rows = data
                     render()
                 })
+        }
+
+        /* 解析唯一码输入（逗号/空格/换行/引号分隔） */
+
+        function parseGoodsNums(input) {
+            return input.replace(/'/g, " ").split(/[\s,]+/).filter(t => t.length > 0)
+        }
+
+        /* 根据唯一码生成卡片 */
+
+        function loadGoodsCards(goodsNums) {
+            fetch("/api/goods-cards", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ goodsNums })
+            })
+                .then(async r => {
+                    const data = await r.json()
+                    if (!r.ok) throw new Error(data.detail || "请求失败")
+                    return data
+                })
+                .then(d => renderCards(d))
+                .catch(e => alert(e.message))
         }
 
         /* 当天日期（YYYY-MM-DD） */
