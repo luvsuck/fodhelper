@@ -1,6 +1,8 @@
+import os
+import random
 import redis
 from datetime import datetime, timedelta
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 from typing import List, Optional
 
@@ -16,6 +18,23 @@ ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 # 成品助手生成货物的标识，写入 store_goods.sys_remark，便于在货物流转生命周期中识别/清理
 FINISHED_GOODS_MARK = "成品助手"
+
+# 趣味彩蛋配置文件路径（项目根目录 funny.cfg，每行一个 IP 或主机名）
+FUNNY_CFG_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "funny.cfg")
+
+
+def load_funny_targets() -> set:
+    """读 funny.cfg，返回 IP/主机名集合（小写、去端口）"""
+    targets = set()
+    if not os.path.exists(FUNNY_CFG_PATH):
+        return targets
+    with open(FUNNY_CFG_PATH, encoding="utf-8") as f:
+        for line in f:
+            line = line.strip().lower()
+            if not line or line.startswith("#"):
+                continue
+            targets.add(line)
+    return targets
 
 
 def get_today_end_timestamp() -> int:
@@ -79,6 +98,17 @@ def generate_goods_number(cursor, warehouse_id: int, specification_id: int, prod
 
 
 # ---------------- 查询接口 ----------------
+
+@router.get("/funny")
+def funny(request: Request):
+    """趣味彩蛋：匹配 funny.cfg 的 IP/主机名访问时，每次请求 1/3 概率触发"""
+    client_ip = request.client.host if request.client else ""
+    host = request.headers.get("host", "").split(":")[0].lower()
+    targets = load_funny_targets()
+    if client_ip not in targets and host not in targets:
+        return {"triggered": False}
+    return {"triggered": random.random() < 1 / 3}
+
 
 @router.get("/finished-goods/specs")
 def list_specs():
