@@ -767,235 +767,240 @@
 </head>
 
 <body>
-    <aside class="sidebar">
-        <div class="brand">
-            <div class="brand-logo">工</div>
-            <div class="brand-text">
-                <div class="brand-name">二门</div>
-                <div class="brand-sub">货物生成 · 标签打印</div>
-            </div>
-        </div>
-        <nav class="side-nav">
-            <a href="#" class="nav-item active" data-tab="order" onclick="switchTab('order'); return false;">加工单助手</a>
-            <a href="#" class="nav-item" data-tab="finished" onclick="switchTab('finished'); return false;">成品助手</a>
-        </nav>
-        <div class="side-foot">
-            <p>支持输入 <b>加工单 ID</b>，或 <b>P 开头</b>的货物唯一码（逗号 / 换行分隔）。</p>
-            <button class="btn-changelog" onclick="openChangelog()">更新日志</button>
-        </div>
-    </aside>
-
-    <main class="content">
-        <section class="toolbar" data-tab="order">
-            <div class="search-box">
-                <input id="orderId" placeholder="输入加工单 ID 或货物唯一码">
-            </div>
-            <button class="btn btn-primary" onclick="loadOrder()">查询</button>
-            <button class="btn btn-success" onclick="submitData()">一键生成</button>
-        </section>
-
-        <section id="order-panel" class="panel" data-tab="order">
-            <div class="panel-head">
-                <h2>加工单助手</h2>
-                <span class="panel-hint">分切产物需填写涂布日期</span>
-            </div>
-            <div id="container"></div>
-        </section>
-
-        <section id="label-panel" class="panel" data-tab="order">
-            <div class="panel-head">
-                <h2>标签预览</h2>
-            </div>
-            <div id="cardContainer" class="card-container">
-                <div class="empty">查询或生成后在此显示标签</div>
-            </div>
-        </section>
-
-        <section id="finished-goods-panel" class="panel" data-tab="finished">
-            <div class="panel-head">
-                <h2>成品助手</h2>
-                <span class="panel-hint">快速生成测试用成品库存数据</span>
-            </div>
-            <div class="finished-form">
-                <label class="field-full">规格名称
-                    <div class="ss">
-                        <input id="fg_spec_input" class="ss-input" placeholder="搜索规格名称（中文/英文）" autocomplete="off">
-                        <input type="hidden" id="fg_spec">
-                        <div class="ss-dropdown" id="fg_spec_dd" hidden></div>
-                    </div>
-                </label>
-                <label>品牌
-                    <div class="ss">
-                        <input id="fg_brand_input" class="ss-input" placeholder="搜索品牌" autocomplete="off">
-                        <input type="hidden" id="fg_brand">
-                        <div class="ss-dropdown" id="fg_brand_dd" hidden></div>
-                    </div>
-                </label>
-                <label>工厂
-                    <div class="ss">
-                        <input id="fg_factory_input" class="ss-input" placeholder="搜索工厂" autocomplete="off">
-                        <input type="hidden" id="fg_factory">
-                        <div class="ss-dropdown" id="fg_factory_dd" hidden></div>
-                    </div>
-                </label>
-                <label>长度（米）
-                    <input id="fg_length" type="number" min="0" step="any" placeholder="选中规格后自动带出">
-                </label>
-                <label>数量
-                    <input id="fg_count" type="number" min="1" value="1">
-                </label>
-                <label>生产日期
-                    <input id="fg_product_date" type="date">
-                </label>
-                <label>仓库
-                    <div class="ss">
-                        <input id="fg_warehouse_input" class="ss-input" placeholder="搜索仓库" autocomplete="off">
-                        <input type="hidden" id="fg_warehouse">
-                        <div class="ss-dropdown" id="fg_warehouse_dd" hidden></div>
-                    </div>
-                </label>
-                <div class="shelf-row">
-                    <label>货架
-                        <div class="ss">
-                            <input id="fg_shelf_input" class="ss-input" placeholder="搜索货架" autocomplete="off">
-                            <input type="hidden" id="fg_shelf">
-                            <div class="ss-dropdown" id="fg_shelf_dd" hidden></div>
-                        </div>
-                    </label>
-                    <label>层（X）
-                        <div class="ss">
-                            <input id="fg_location_x_input" class="ss-input" placeholder="输入层数" autocomplete="off">
-                            <input type="hidden" id="fg_location_x">
-                            <div class="ss-dropdown" id="fg_location_x_dd" hidden></div>
-                        </div>
-                    </label>
-                    <label>列 / 仓位（Y）
-                        <div class="ss">
-                            <input id="fg_location_y_input" class="ss-input" placeholder="输入仓位数" autocomplete="off">
-                            <input type="hidden" id="fg_location_y">
-                            <div class="ss-dropdown" id="fg_location_y_dd" hidden></div>
-                        </div>
-                    </label>
-                </div>
-            </div>
-            <div class="finished-actions">
-                <button class="btn btn-success" onclick="generateFinishedGoods()">生成库存</button>
-            </div>
-            <div id="fg_result" class="empty" style="margin: 0 20px 20px;" hidden></div>
-        </section>
-    </main>
-
-    <!-- 更新日志弹窗 -->
-    <div class="modal-backdrop" id="changelogModal" hidden>
-        <div class="modal">
-            <div class="modal-head">
-                <h2>更新日志</h2>
-                <button class="modal-close" onclick="closeChangelog()">×</button>
-            </div>
-            <div class="modal-body" id="changelogList"></div>
+<aside class="sidebar">
+    <div class="brand">
+        <div class="brand-logo">工</div>
+        <div class="brand-text">
+            <div class="brand-name">二门</div>
+            <div class="brand-sub">货物生成 · 标签打印</div>
         </div>
     </div>
+    <nav class="side-nav">
+        <a href="#" class="nav-item active" data-tab="order" onclick="switchTab('order'); return false;">加工单助手</a>
+        <a href="#" class="nav-item" data-tab="finished" onclick="switchTab('finished'); return false;">成品助手</a>
+    </nav>
+    <div class="side-foot">
+        <p>支持输入 <b>加工单 ID</b>，或 <b>P 开头</b>的货物唯一码（逗号 / 换行分隔）。<br/>支持批量生成<b>成品货物</b>数据。</p>
+        <button class="btn-changelog" onclick="openChangelog()">更新日志</button>
+    </div>
+</aside>
 
-    <script>
-        let rows = [];
-        let specCache = {}, supplierCache = {};
+<main class="content">
+    <section class="toolbar" data-tab="order">
+        <div class="search-box">
+            <input id="orderId" placeholder="输入加工单 ID 或货物唯一码">
+        </div>
+        <button class="btn btn-primary" onclick="loadOrder()">查询</button>
+        <button class="btn btn-success" onclick="submitData()">一键生成</button>
+    </section>
 
-        /* 趣味彩蛋：匹配 funny.cfg 的 IP/主机名访问时，1/3 概率把「成品助手」改成「挡风玻璃助手」 */
-        fetch("/api/funny")
+    <section id="order-panel" class="panel" data-tab="order">
+        <div class="panel-head">
+            <h2>加工单助手</h2>
+            <span class="panel-hint">分切产物需填写涂布日期</span>
+        </div>
+        <div id="container"></div>
+    </section>
+
+    <section id="label-panel" class="panel" data-tab="order">
+        <div class="panel-head">
+            <h2>标签预览</h2>
+        </div>
+        <div id="cardContainer" class="card-container">
+            <div class="empty">查询或生成后在此显示标签</div>
+        </div>
+    </section>
+
+    <section id="finished-goods-panel" class="panel" data-tab="finished">
+        <div class="panel-head">
+            <h2>成品助手</h2>
+            <span class="panel-hint">快速生成测试用成品库存数据</span>
+        </div>
+        <div class="finished-form">
+            <label class="field-full">规格名称
+                <div class="ss">
+                    <input id="fg_spec_input" class="ss-input" placeholder="搜索规格名称（中文/英文）" autocomplete="off">
+                    <input type="hidden" id="fg_spec">
+                    <div class="ss-dropdown" id="fg_spec_dd" hidden></div>
+                </div>
+            </label>
+            <label>品牌
+                <div class="ss">
+                    <input id="fg_brand_input" class="ss-input" placeholder="搜索品牌" autocomplete="off">
+                    <input type="hidden" id="fg_brand">
+                    <div class="ss-dropdown" id="fg_brand_dd" hidden></div>
+                </div>
+            </label>
+            <label>工厂
+                <div class="ss">
+                    <input id="fg_factory_input" class="ss-input" placeholder="搜索工厂" autocomplete="off">
+                    <input type="hidden" id="fg_factory">
+                    <div class="ss-dropdown" id="fg_factory_dd" hidden></div>
+                </div>
+            </label>
+            <label>长度（米）
+                <input id="fg_length" type="number" min="0" step="any" placeholder="选中规格后自动带出">
+            </label>
+            <label>数量
+                <input id="fg_count" type="number" min="1" value="1">
+            </label>
+            <label>生产日期
+                <input id="fg_product_date" type="date">
+            </label>
+            <label>仓库
+                <div class="ss">
+                    <input id="fg_warehouse_input" class="ss-input" placeholder="搜索仓库" autocomplete="off">
+                    <input type="hidden" id="fg_warehouse">
+                    <div class="ss-dropdown" id="fg_warehouse_dd" hidden></div>
+                </div>
+            </label>
+            <div class="shelf-row">
+                <label>货架
+                    <div class="ss">
+                        <input id="fg_shelf_input" class="ss-input" placeholder="搜索货架" autocomplete="off">
+                        <input type="hidden" id="fg_shelf">
+                        <div class="ss-dropdown" id="fg_shelf_dd" hidden></div>
+                    </div>
+                </label>
+                <label>层（X）
+                    <div class="ss">
+                        <input id="fg_location_x_input" class="ss-input" placeholder="输入层数" autocomplete="off">
+                        <input type="hidden" id="fg_location_x">
+                        <div class="ss-dropdown" id="fg_location_x_dd" hidden></div>
+                    </div>
+                </label>
+                <label>列 / 仓位（Y）
+                    <div class="ss">
+                        <input id="fg_location_y_input" class="ss-input" placeholder="输入仓位数" autocomplete="off">
+                        <input type="hidden" id="fg_location_y">
+                        <div class="ss-dropdown" id="fg_location_y_dd" hidden></div>
+                    </div>
+                </label>
+            </div>
+        </div>
+        <div class="finished-actions">
+            <button class="btn btn-success" id="fg_generate_btn" onclick="generateFinishedGoods()">生成库存</button>
+        </div>
+        <div id="fg_result" class="empty" style="margin: 0 20px 20px;" hidden></div>
+    </section>
+</main>
+
+<!-- 更新日志弹窗 -->
+<div class="modal-backdrop" id="changelogModal" hidden>
+    <div class="modal">
+        <div class="modal-head">
+            <h2>更新日志</h2>
+            <button class="modal-close" onclick="closeChangelog()">×</button>
+        </div>
+        <div class="modal-body" id="changelogList"></div>
+    </div>
+</div>
+
+<script src="/funny-mouse.js"></script>
+<script>
+    let rows = [];
+    let specCache = {}, supplierCache = {};
+
+    /* 趣味彩蛋：匹配 funny.cfg 的 IP/主机名访问时，1/3 概率把「成品助手」改成「挡风玻璃助手」，并给生成按钮上演猫鼠游戏 */
+    fetch("/api/funny")
+        .then(r => r.json())
+        .then(d => {
+            if (d.triggered) {
+                const nav = document.querySelector('a[data-tab="finished"]')
+                if (nav) nav.textContent = "挡风玻璃助手"
+                const h2 = document.querySelector('#finished-goods-panel h2')
+                if (h2) h2.textContent = "挡风玻璃助手"
+                if (window.funnyMouse) {
+                    window.funnyMouse(document.getElementById("fg_generate_btn"), generateFinishedGoods)
+                }
+            }
+        })
+        .catch(() => {
+        })
+
+    /* 当天日期（YYYY-MM-DD） */
+
+    function todayStr() {
+        const d = new Date()
+        const m = String(d.getMonth() + 1).padStart(2, "0")
+        const day = String(d.getDate()).padStart(2, "0")
+        return `${d.getFullYear()}-${m}-${day}`
+    }
+
+    /* 查询订单（自动分流：唯一码 / 加工单） */
+
+    function loadOrder() {
+
+        const raw = document.getElementById("orderId").value.trim()
+        if (!raw) {
+            alert("请输入加工单 ID 或货物唯一码")
+            return
+        }
+
+        const goodsNums = parseGoodsNums(raw)
+        if (goodsNums.length && goodsNums.every(n => /^P/i.test(n))) {
+            loadGoodsCards(goodsNums)
+            return
+        }
+
+        fetch("/api/order/" + raw)
             .then(r => r.json())
+            .then(data => {
+                rows = data
+                render()
+            })
+            .catch(e => alert("查询失败：" + e.message))
+    }
+
+    /* 解析唯一码输入（逗号 / 空格 / 换行 / 引号分隔） */
+
+    function parseGoodsNums(input) {
+        return input.replace(/'/g, " ").split(/[\s,]+/).filter(t => t.length > 0)
+    }
+
+    /* 根据唯一码生成卡片 */
+
+    function loadGoodsCards(goodsNums) {
+        fetch("/api/goods-cards", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({goodsNums})
+        })
+            .then(async r => {
+                const data = await r.json()
+                if (!r.ok) throw new Error(data.detail || "请求失败")
+                return data
+            })
             .then(d => {
-                if (d.triggered) {
-                    const nav = document.querySelector('a[data-tab="finished"]')
-                    if (nav) nav.textContent = "挡风玻璃助手"
-                    const h2 = document.querySelector('#finished-goods-panel h2')
-                    if (h2) h2.textContent = "挡风玻璃助手"
+                renderCards(d)
+                if (!d.goodsCards || d.goodsCards.length === 0) {
+                    alert("未找到对应货物")
                 }
             })
-            .catch(() => {})
+            .catch(e => alert(e.message))
+    }
 
-        /* 当天日期（YYYY-MM-DD） */
+    /* 渲染加工单明细 */
 
-        function todayStr() {
-            const d = new Date()
-            const m = String(d.getMonth() + 1).padStart(2, "0")
-            const day = String(d.getDate()).padStart(2, "0")
-            return `${d.getFullYear()}-${m}-${day}`
+    function render() {
+
+        const container = document.getElementById("container")
+        container.innerHTML = ""
+
+        if (!rows.length) {
+            container.innerHTML = '<div class="empty">暂无数据，请输入加工单 ID 查询</div>'
+            return
         }
 
-        /* 查询订单（自动分流：唯一码 / 加工单） */
+        rows.forEach((od, odIndex) => {
 
-        function loadOrder() {
+            const isSplit = Number(od.processType) === 3
+            const dateValue = isSplit ? todayStr() : (od.coatingDate || '')
 
-            const raw = document.getElementById("orderId").value.trim()
-            if (!raw) {
-                alert("请输入加工单 ID 或货物唯一码")
-                return
-            }
+            const group = document.createElement("section")
+            group.className = "order-group"
 
-            const goodsNums = parseGoodsNums(raw)
-            if (goodsNums.length && goodsNums.every(n => /^P/i.test(n))) {
-                loadGoodsCards(goodsNums)
-                return
-            }
-
-            fetch("/api/order/" + raw)
-                .then(r => r.json())
-                .then(data => {
-                    rows = data
-                    render()
-                })
-                .catch(e => alert("查询失败：" + e.message))
-        }
-
-        /* 解析唯一码输入（逗号 / 空格 / 换行 / 引号分隔） */
-
-        function parseGoodsNums(input) {
-            return input.replace(/'/g, " ").split(/[\s,]+/).filter(t => t.length > 0)
-        }
-
-        /* 根据唯一码生成卡片 */
-
-        function loadGoodsCards(goodsNums) {
-            fetch("/api/goods-cards", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ goodsNums })
-            })
-                .then(async r => {
-                    const data = await r.json()
-                    if (!r.ok) throw new Error(data.detail || "请求失败")
-                    return data
-                })
-                .then(d => {
-                    renderCards(d)
-                    if (!d.goodsCards || d.goodsCards.length === 0) {
-                        alert("未找到对应货物")
-                    }
-                })
-                .catch(e => alert(e.message))
-        }
-
-        /* 渲染加工单明细 */
-
-        function render() {
-
-            const container = document.getElementById("container")
-            container.innerHTML = ""
-
-            if (!rows.length) {
-                container.innerHTML = '<div class="empty">暂无数据，请输入加工单 ID 查询</div>'
-                return
-            }
-
-            rows.forEach((od, odIndex) => {
-
-                const isSplit = Number(od.processType) === 3
-                const dateValue = isSplit ? todayStr() : (od.coatingDate || '')
-
-                const group = document.createElement("section")
-                group.className = "order-group"
-
-                const cards = od.materials.map((m, i) => `
+            const cards = od.materials.map((m, i) => `
                     <div class="material-card">
                         <div class="material-card-head">
                             <span class="material-name">${m.productName}</span>
@@ -1020,7 +1025,7 @@
                     </div>
                 `).join("")
 
-                group.innerHTML = `
+            group.innerHTML = `
                     <div class="order-head">
                         <div class="order-title">
                             <span class="order-badge">#${od.orderDetailId}</span>
@@ -1035,215 +1040,215 @@
                     <div class="materials-grid">${cards}</div>
                 `
 
-                container.appendChild(group)
+            container.appendChild(group)
+        })
+
+        rows.forEach((od, odIndex) => {
+            od.materials.forEach((m, i) => {
+                loadSpec(odIndex, i, m.productNo, m.spec)
+                loadSupplier(odIndex, i, m.productNo, m.supplierId)
             })
+        })
+    }
 
-            rows.forEach((od, odIndex) => {
-                od.materials.forEach((m, i) => {
-                    loadSpec(odIndex, i, m.productNo, m.spec)
-                    loadSupplier(odIndex, i, m.productNo, m.supplierId)
-                })
+    /* 行操作 */
+
+    function duplicate(odIndex, i) {
+        const m = JSON.parse(JSON.stringify(rows[odIndex].materials[i]))
+        rows[odIndex].materials.splice(i + 1, 0, m)
+        render()
+    }
+
+    function deleteMaterial(odIndex, i) {
+        rows[odIndex].materials.splice(i, 1)
+        render()
+    }
+
+    function split(odIndex, i) {
+
+        const n = parseInt(prompt("生成几份"))
+        if (!n || n <= 1) return
+
+        const row = rows[odIndex].materials[i]
+        const length = (row.estimateCount / n).toFixed(2)
+
+        rows[odIndex].materials.splice(i, 1)
+
+        for (let k = 0; k < n; k++) {
+            rows[odIndex].materials.splice(i + k, 0, {
+                productNo: row.productNo,
+                productName: row.productName,
+                estimateCount: length,
+                spec: row.spec,
+                supplierId: row.supplierId,
+                supplierName: row.supplierName
             })
         }
 
-        /* 行操作 */
+        render()
+    }
 
-        function duplicate(odIndex, i) {
-            const m = JSON.parse(JSON.stringify(rows[odIndex].materials[i]))
-            rows[odIndex].materials.splice(i + 1, 0, m)
-            render()
+    /* 规格 */
+
+    function loadSpec(odIndex, i, productNo, defaultSpec) {
+
+        if (specCache[productNo]) {
+            renderSpec(odIndex, i, specCache[productNo], defaultSpec)
+            return
         }
 
-        function deleteMaterial(odIndex, i) {
-            rows[odIndex].materials.splice(i, 1)
-            render()
-        }
-
-        function split(odIndex, i) {
-
-            const n = parseInt(prompt("生成几份"))
-            if (!n || n <= 1) return
-
-            const row = rows[odIndex].materials[i]
-            const length = (row.estimateCount / n).toFixed(2)
-
-            rows[odIndex].materials.splice(i, 1)
-
-            for (let k = 0; k < n; k++) {
-                rows[odIndex].materials.splice(i + k, 0, {
-                    productNo: row.productNo,
-                    productName: row.productName,
-                    estimateCount: length,
-                    spec: row.spec,
-                    supplierId: row.supplierId,
-                    supplierName: row.supplierName
-                })
-            }
-
-            render()
-        }
-
-        /* 规格 */
-
-        function loadSpec(odIndex, i, productNo, defaultSpec) {
-
-            if (specCache[productNo]) {
+        fetch("/api/spec/" + productNo)
+            .then(r => r.json())
+            .then(data => {
+                specCache[productNo] = Array.from(new Set(data))
                 renderSpec(odIndex, i, specCache[productNo], defaultSpec)
+            })
+    }
+
+    function renderSpec(odIndex, i, data, defaultSpec) {
+
+        const select = document.getElementById(`spec_${odIndex}_${i}`)
+        if (!select) return
+
+        select.innerHTML = ""
+
+        data.forEach(v => {
+            const op = document.createElement("option")
+            op.value = v
+            op.text = v
+            if (v === defaultSpec) op.selected = true
+            select.appendChild(op)
+        })
+    }
+
+    /* 供应商 */
+
+    function loadSupplier(odIndex, i, productNo, defaultId) {
+
+        if (supplierCache[productNo]) {
+            renderSupplier(odIndex, i, supplierCache[productNo], defaultId)
+            return
+        }
+
+        fetch("/api/supplier/" + productNo)
+            .then(r => r.json())
+            .then(data => {
+
+                const map = new Map()
+
+                data.forEach(s => {
+                    map.set(s.CompanyPurchaseSupplierId, s.SupplierName)
+                })
+
+                const arr = []
+                map.forEach((name, id) => {
+                    arr.push({CompanyPurchaseSupplierId: id, SupplierName: name})
+                })
+
+                supplierCache[productNo] = arr
+                renderSupplier(odIndex, i, arr, defaultId)
+
+            })
+            .catch(e => {
+                console.log(e)
+                alert(e.message)
+            })
+    }
+
+    function renderSupplier(odIndex, i, data, defaultId) {
+
+        const select = document.getElementById(`supplier_${odIndex}_${i}`)
+        if (!select) return
+
+        select.innerHTML = ""
+
+        data.forEach(v => {
+
+            const op = document.createElement("option")
+            op.value = v.CompanyPurchaseSupplierId
+            op.text = v.SupplierName
+
+            if (v.CompanyPurchaseSupplierId == defaultId)
+                op.selected = true
+
+            select.appendChild(op)
+        })
+    }
+
+    /* 提交 */
+
+    function submitData() {
+
+        // 分切产物必须填写涂布日期
+        for (let i = 0; i < rows.length; i++) {
+            if (Number(rows[i].processType) === 3 && !document.getElementById(`coatingDate_${i}`)?.value) {
+                alert("分切产物必须填写涂布日期")
                 return
             }
-
-            fetch("/api/spec/" + productNo)
-                .then(r => r.json())
-                .then(data => {
-                    specCache[productNo] = Array.from(new Set(data))
-                    renderSpec(odIndex, i, specCache[productNo], defaultSpec)
-                })
         }
 
-        function renderSpec(odIndex, i, data, defaultSpec) {
+        const result = []
 
-            const select = document.getElementById(`spec_${odIndex}_${i}`)
-            if (!select) return
+        rows.forEach((od, odIndex) => {
+            const coatingDate = document.getElementById(`coatingDate_${odIndex}`)?.value || null
 
-            select.innerHTML = ""
+            od.materials.forEach((m, i) => {
 
-            data.forEach(v => {
-                const op = document.createElement("option")
-                op.value = v
-                op.text = v
-                if (v === defaultSpec) op.selected = true
-                select.appendChild(op)
+                const specSelect = document.getElementById(`spec_${odIndex}_${i}`)
+                const spec = specSelect ? specSelect.value : m.spec
+
+                const supplierSelect = document.getElementById(`supplier_${odIndex}_${i}`)
+                const supplierId = supplierSelect ? supplierSelect.value : m.supplierId
+                const supplierName = supplierSelect ? supplierSelect.options[supplierSelect.selectedIndex].text : m.supplierName
+
+                result.push({
+                    productNo: m.productNo,
+                    spec: spec,
+                    supplierId: supplierId,
+                    supplierName: supplierName,
+                    length: m.estimateCount,
+                    coatingDate: coatingDate
+                })
             })
-        }
+        })
 
-        /* 供应商 */
-
-        function loadSupplier(odIndex, i, productNo, defaultId) {
-
-            if (supplierCache[productNo]) {
-                renderSupplier(odIndex, i, supplierCache[productNo], defaultId)
-                return
-            }
-
-            fetch("/api/supplier/" + productNo)
-                .then(r => r.json())
-                .then(data => {
-
-                    const map = new Map()
-
-                    data.forEach(s => {
-                        map.set(s.CompanyPurchaseSupplierId, s.SupplierName)
-                    })
-
-                    const arr = []
-                    map.forEach((name, id) => {
-                        arr.push({ CompanyPurchaseSupplierId: id, SupplierName: name })
-                    })
-
-                    supplierCache[productNo] = arr
-                    renderSupplier(odIndex, i, arr, defaultId)
-
-                })
-                .catch(e => {
-                    console.log(e)
-                    alert(e.message)
-                })
-        }
-
-        function renderSupplier(odIndex, i, data, defaultId) {
-
-            const select = document.getElementById(`supplier_${odIndex}_${i}`)
-            if (!select) return
-
-            select.innerHTML = ""
-
-            data.forEach(v => {
-
-                const op = document.createElement("option")
-                op.value = v.CompanyPurchaseSupplierId
-                op.text = v.SupplierName
-
-                if (v.CompanyPurchaseSupplierId == defaultId)
-                    op.selected = true
-
-                select.appendChild(op)
-            })
-        }
-
-        /* 提交 */
-
-        function submitData() {
-
-            // 分切产物必须填写涂布日期
-            for (let i = 0; i < rows.length; i++) {
-                if (Number(rows[i].processType) === 3 && !document.getElementById(`coatingDate_${i}`)?.value) {
-                    alert("分切产物必须填写涂布日期")
-                    return
+        fetch("/api/generate", {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+                'X-FinishedOrderId': document.getElementById("orderId").value
+            },
+            body: JSON.stringify(result)
+        })
+            .then(async r => {
+                const data = await r.json()
+                if (!r.ok) {
+                    throw new Error(data.detail || "请求失败")
                 }
-            }
-
-            const result = []
-
-            rows.forEach((od, odIndex) => {
-                const coatingDate = document.getElementById(`coatingDate_${odIndex}`)?.value || null
-
-                od.materials.forEach((m, i) => {
-
-                    const specSelect = document.getElementById(`spec_${odIndex}_${i}`)
-                    const spec = specSelect ? specSelect.value : m.spec
-
-                    const supplierSelect = document.getElementById(`supplier_${odIndex}_${i}`)
-                    const supplierId = supplierSelect ? supplierSelect.value : m.supplierId
-                    const supplierName = supplierSelect ? supplierSelect.options[supplierSelect.selectedIndex].text : m.supplierName
-
-                    result.push({
-                        productNo: m.productNo,
-                        spec: spec,
-                        supplierId: supplierId,
-                        supplierName: supplierName,
-                        length: m.estimateCount,
-                        coatingDate: coatingDate
-                    })
-                })
+                return data
             })
-
-            fetch("/api/generate", {
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-FinishedOrderId': document.getElementById("orderId").value
-                },
-                body: JSON.stringify(result)
+            .then(d => {
+                alert("生成 " + d.count + " 条数据")
+                renderCards(d)
             })
-                .then(async r => {
-                    const data = await r.json()
-                    if (!r.ok) {
-                        throw new Error(data.detail || "请求失败")
-                    }
-                    return data
-                })
-                .then(d => {
-                    alert("生成 " + d.count + " 条数据")
-                    renderCards(d)
-                })
-                .catch(e => {
-                    alert(e.message)
-                })
-        }
+            .catch(e => {
+                alert(e.message)
+            })
+    }
 
-        /* 渲染标签 */
+    /* 渲染标签 */
 
-        function renderCards(data) {
+    function renderCards(data) {
 
-            const container = document.getElementById("cardContainer")
-            container.innerHTML = ""
+        const container = document.getElementById("cardContainer")
+        container.innerHTML = ""
 
-            data.goodsCards.forEach(c => {
+        data.goodsCards.forEach(c => {
 
-                const div = document.createElement("div")
-                div.className = "card"
+            const div = document.createElement("div")
+            div.className = "card"
 
-                div.innerHTML = `
+            div.innerHTML = `
                     <div class="card-title">${c.goodsName}</div>
                     <div class="card-content">
                         产品编码：<b>${c.productNo}</b><br>
@@ -1257,57 +1262,57 @@
                     </div>
                 `
 
-                container.appendChild(div)
-            })
+            container.appendChild(div)
+        })
 
-            data.shelfCards.forEach(c => {
+        data.shelfCards.forEach(c => {
 
-                const div = document.createElement("div")
-                div.className = "card shelf-card"
+            const div = document.createElement("div")
+            div.className = "card shelf-card"
 
-                div.innerHTML = `
+            div.innerHTML = `
                     <div class="card-title">货架：${c.shelfName}</div>
                     <div class="qr">
                         <img src="data:image/png;base64,${c.qrCode}">
                     </div>
                 `
 
-                container.appendChild(div)
+            container.appendChild(div)
+        })
+    }
+
+    /* 更新日志 */
+
+    function openChangelog() {
+        fetch("/CHANGELOG.md")
+            .then(r => r.text())
+            .then(md => {
+                document.getElementById("changelogList").innerHTML = renderChangelog(md)
+                document.getElementById("changelogModal").hidden = false
             })
-        }
+            .catch(e => alert("加载更新日志失败：" + e.message))
+    }
 
-        /* 更新日志 */
+    function closeChangelog() {
+        document.getElementById("changelogModal").hidden = true
+    }
 
-        function openChangelog() {
-            fetch("/CHANGELOG.md")
-                .then(r => r.text())
-                .then(md => {
-                    document.getElementById("changelogList").innerHTML = renderChangelog(md)
-                    document.getElementById("changelogModal").hidden = false
-                })
-                .catch(e => alert("加载更新日志失败：" + e.message))
-        }
+    /* 解析 CHANGELOG.md：`## 版本 (日期)` 为条目，`- 内容` 为改动项 */
 
-        function closeChangelog() {
-            document.getElementById("changelogModal").hidden = true
-        }
-
-        /* 解析 CHANGELOG.md：`## 版本 (日期)` 为条目，`- 内容` 为改动项 */
-
-        function renderChangelog(md) {
-            const items = []
-            let cur = null
-            for (const raw of md.split("\n")) {
-                const line = raw.trim()
-                const h = line.match(/^##\s+(.+?)\s*\((.+?)\)\s*$/)
-                if (h) {
-                    cur = { version: h[1], date: h[2], changes: [] }
-                    items.push(cur)
-                } else if (cur && /^[-*]\s+/.test(line)) {
-                    cur.changes.push(mdInline(line.replace(/^[-*]\s+/, "")))
-                }
+    function renderChangelog(md) {
+        const items = []
+        let cur = null
+        for (const raw of md.split("\n")) {
+            const line = raw.trim()
+            const h = line.match(/^##\s+(.+?)\s*\((.+?)\)\s*$/)
+            if (h) {
+                cur = {version: h[1], date: h[2], changes: []}
+                items.push(cur)
+            } else if (cur && /^[-*]\s+/.test(line)) {
+                cur.changes.push(mdInline(line.replace(/^[-*]\s+/, "")))
             }
-            return items.map(v => `
+        }
+        return items.map(v => `
                 <div class="cl-item">
                     <div class="cl-head">
                         <span class="cl-version">${esc(v.version)}</span>
@@ -1316,204 +1321,244 @@
                     <ul class="cl-changes">${v.changes.map(c => `<li>${c}</li>`).join("")}</ul>
                 </div>
             `).join("")
-        }
+    }
 
-        function mdInline(s) {
-            return esc(s).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>")
-        }
+    function mdInline(s) {
+        return esc(s).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>")
+    }
 
-        function esc(s) {
-            return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-        }
+    function esc(s) {
+        return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    }
 
-        /* ---------- 页面切换 ---------- */
+    /* ---------- 页面切换 ---------- */
 
-        function switchTab(tab) {
-            document.querySelectorAll(".nav-item").forEach(n => n.classList.toggle("active", n.dataset.tab === tab))
-            // 只切换面板与工具栏，排除带 data-tab 的 nav-item 本身
-            document.querySelectorAll(".panel[data-tab], .toolbar[data-tab]").forEach(el => {
-                el.style.display = el.dataset.tab === tab ? "" : "none"
-            })
-        }
+    function switchTab(tab) {
+        document.querySelectorAll(".nav-item").forEach(n => n.classList.toggle("active", n.dataset.tab === tab))
+        // 只切换面板与工具栏，排除带 data-tab 的 nav-item 本身
+        document.querySelectorAll(".panel[data-tab], .toolbar[data-tab]").forEach(el => {
+            el.style.display = el.dataset.tab === tab ? "" : "none"
+        })
+    }
 
-        /* ---------- 成品助手 ---------- */
+    /* ---------- 成品助手 ---------- */
 
-        // 通用可搜索下拉：input 本地过滤，点击选项回填 hidden 值
-        function bindSearchable(inputId, ddId, valueId, onPick) {
-            const input = document.getElementById(inputId)
-            const dd = document.getElementById(ddId)
-            const value = document.getElementById(valueId)
-            let options = []
-            let currentList = []
+    // 通用可搜索下拉：input 本地过滤，点击选项回填 hidden 值
+    function bindSearchable(inputId, ddId, valueId, onPick) {
+        const input = document.getElementById(inputId)
+        const dd = document.getElementById(ddId)
+        const value = document.getElementById(valueId)
+        let options = []
+        let currentList = []
 
-            function render(list) {
-                currentList = list
-                dd.innerHTML = list.map((o, i) => `
+        function render(list) {
+            currentList = list
+            dd.innerHTML = list.map((o, i) => `
                     <div class="ss-option" data-i="${i}">
                         ${esc(o.text)}
                         ${o.sub ? `<span class="ss-sub">${esc(o.sub)}</span>` : ""}
                     </div>
                 `).join("")
-                dd.hidden = list.length === 0
-            }
+            dd.hidden = list.length === 0
+        }
 
-            function filter() {
-                const kw = input.value.trim().toLowerCase()
-                const list = kw ? options.filter(o => (o.text + " " + (o.sub || "")).toLowerCase().includes(kw)) : options
-                render(list)
-            }
+        function filter() {
+            const kw = input.value.trim().toLowerCase()
+            const list = kw ? options.filter(o => (o.text + " " + (o.sub || "")).toLowerCase().includes(kw)) : options
+            render(list)
+        }
 
-            input.addEventListener("input", filter)
-            input.addEventListener("focus", filter)
-            input.addEventListener("blur", () => setTimeout(() => dd.hidden = true, 200))
-            dd.addEventListener("mousedown", (e) => {
-                const opt = e.target.closest(".ss-option")
-                if (!opt) return
-                const o = currentList[Number(opt.dataset.i)]
-                value.value = o.id
-                input.value = o.text
+        input.addEventListener("input", filter)
+        input.addEventListener("focus", filter)
+        input.addEventListener("blur", () => setTimeout(() => dd.hidden = true, 200))
+        dd.addEventListener("mousedown", (e) => {
+            const opt = e.target.closest(".ss-option")
+            if (!opt) return
+            const o = currentList[Number(opt.dataset.i)]
+            value.value = o.id
+            input.value = o.text
+            dd.hidden = true
+            if (onPick) onPick(o)
+        })
+
+        return {
+            setOptions(list) {
+                options = list
+            },
+            getValue() {
+                return value.value
+            },
+            clear() {
+                value.value = "";
+                input.value = "";
                 dd.hidden = true
-                if (onPick) onPick(o)
-            })
-
-            return {
-                setOptions(list) { options = list },
-                getValue() { return value.value },
-                clear() { value.value = ""; input.value = ""; dd.hidden = true }
             }
         }
+    }
 
-        const fg = {
-            spec: bindSearchable("fg_spec_input", "fg_spec_dd", "fg_spec", o => {
-                if (o.spec && o.spec.length != null) document.getElementById("fg_length").value = o.spec.length
-            }),
-            brand: bindSearchable("fg_brand_input", "fg_brand_dd", "fg_brand"),
-            factory: bindSearchable("fg_factory_input", "fg_factory_dd", "fg_factory"),
-            warehouse: bindSearchable("fg_warehouse_input", "fg_warehouse_dd", "fg_warehouse", o => loadShelves(o.id)),
-            shelf: bindSearchable("fg_shelf_input", "fg_shelf_dd", "fg_shelf", o => renderLocationOptions(o)),
-            locationX: bindSearchable("fg_location_x_input", "fg_location_x_dd", "fg_location_x"),
-            locationY: bindSearchable("fg_location_y_input", "fg_location_y_dd", "fg_location_y")
+    const fg = {
+        spec: bindSearchable("fg_spec_input", "fg_spec_dd", "fg_spec", o => {
+            if (o.spec && o.spec.length != null) document.getElementById("fg_length").value = o.spec.length
+        }),
+        brand: bindSearchable("fg_brand_input", "fg_brand_dd", "fg_brand"),
+        factory: bindSearchable("fg_factory_input", "fg_factory_dd", "fg_factory"),
+        warehouse: bindSearchable("fg_warehouse_input", "fg_warehouse_dd", "fg_warehouse", o => loadShelves(o.id)),
+        shelf: bindSearchable("fg_shelf_input", "fg_shelf_dd", "fg_shelf", o => renderLocationOptions(o)),
+        locationX: bindSearchable("fg_location_x_input", "fg_location_x_dd", "fg_location_x"),
+        locationY: bindSearchable("fg_location_y_input", "fg_location_y_dd", "fg_location_y")
+    }
+
+    // 根据货架的 height(层数=X)/width(每层仓位数=Y) 渲染层、列下拉（支持输入数字筛选）
+    function renderLocationOptions(shelf) {
+        if (!shelf) {
+            fg.locationX.setOptions([])
+            fg.locationX.clear()
+            fg.locationY.setOptions([])
+            fg.locationY.clear()
+            return
         }
+        const xList = []
+        for (let i = 1; i <= shelf.height; i++) xList.push({id: i, text: "第 " + i + " 层"})
+        fg.locationX.setOptions(xList)
 
-        // 根据货架的 height(层数=X)/width(每层仓位数=Y) 渲染层、列下拉（支持输入数字筛选）
-        function renderLocationOptions(shelf) {
-            if (!shelf) {
-                fg.locationX.setOptions([])
-                fg.locationX.clear()
-                fg.locationY.setOptions([])
-                fg.locationY.clear()
-                return
-            }
-            const xList = []
-            for (let i = 1; i <= shelf.height; i++) xList.push({ id: i, text: "第 " + i + " 层" })
-            fg.locationX.setOptions(xList)
+        const yList = []
+        for (let j = 1; j <= shelf.width; j++) yList.push({id: j, text: "第 " + j + " 仓"})
+        fg.locationY.setOptions(yList)
+    }
 
-            const yList = []
-            for (let j = 1; j <= shelf.width; j++) yList.push({ id: j, text: "第 " + j + " 仓" })
-            fg.locationY.setOptions(yList)
+    function loadShelves(warehouseId) {
+        if (!warehouseId) {
+            fg.shelf.setOptions([])
+            fg.shelf.clear()
+            renderLocationOptions(null)
+            return
         }
-
-        function loadShelves(warehouseId) {
-            if (!warehouseId) {
-                fg.shelf.setOptions([])
-                fg.shelf.clear()
-                renderLocationOptions(null)
-                return
-            }
-            fetch("/api/finished-goods/shelves?warehouseId=" + warehouseId)
-                .then(r => r.json())
-                .then(list => fg.shelf.setOptions(list.map(v => ({ id: v.id, text: v.number, width: v.width, height: v.height }))))
-                .catch(e => alert(e.message))
-        }
-
-        function generateFinishedGoods() {
-            const specId = fg.spec.getValue()
-            const brandId = fg.brand.getValue()
-            const factoryId = fg.factory.getValue()
-            const warehouseId = fg.warehouse.getValue()
-            const shelfId = fg.shelf.getValue()
-            const locationX = fg.locationX.getValue()
-            const locationY = fg.locationY.getValue()
-            const length = document.getElementById("fg_length").value
-            const count = document.getElementById("fg_count").value
-            const productDate = document.getElementById("fg_product_date").value
-
-            if (!specId) { alert("请选择规格"); return }
-            if (!brandId) { alert("请选择品牌"); return }
-            if (!factoryId) { alert("请选择工厂"); return }
-            if (!warehouseId) { alert("请选择仓库"); return }
-            if (!shelfId) { alert("请选择货架"); return }
-            if (!locationX) { alert("请选择层"); return }
-            if (!locationY) { alert("请选择列"); return }
-            if (!length) { alert("请填写长度"); return }
-            if (!productDate) { alert("请选择生产日期"); return }
-
-            const body = {
-                specificationId: Number(specId),
-                brandId: Number(brandId),
-                factoryId: Number(factoryId),
-                warehouseId: Number(warehouseId),
-                shelfId: Number(shelfId),
-                locationX: Number(locationX),
-                locationY: Number(locationY),
-                length: Number(length),
-                count: Number(count),
-                productDate: productDate
-            }
-
-            const result = document.getElementById("fg_result")
-            fetch("/api/finished-goods/generate", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(body)
-            })
-                .then(async r => {
-                    const data = await r.json()
-                    if (!r.ok) throw new Error(data.detail || "请求失败")
-                    return data
-                })
-                .then(d => {
-                    result.hidden = false
-                    result.textContent = "已生成 " + d.count + " 条成品库存"
-                    result.style.color = "var(--success)"
-                })
-                .catch(e => {
-                    result.hidden = false
-                    result.textContent = "生成失败：" + e.message
-                    result.style.color = "var(--danger)"
-                })
-        }
-
-        // 初始化：默认加工单明细 tab + 默认生产日期
-        switchTab("order")
-        document.getElementById("fg_product_date").value = todayStr()
-
-        // 加载下拉数据
-        fetch("/api/finished-goods/specs")
+        fetch("/api/finished-goods/shelves?warehouseId=" + warehouseId)
             .then(r => r.json())
-            .then(list => fg.spec.setOptions(list.map(s => ({
-                id: s.id,
-                text: s.color || s.english_name || "",
-                sub: [s.english_name, s.length != null ? s.length + "米" : "", s.mark_price != null ? "¥" + s.mark_price : ""].filter(Boolean).join(" · "),
-                spec: s
+            .then(list => fg.shelf.setOptions(list.map(v => ({
+                id: v.id,
+                text: v.number,
+                width: v.width,
+                height: v.height
             }))))
             .catch(e => alert(e.message))
+    }
 
-        fetch("/api/finished-goods/brands")
-            .then(r => r.json())
-            .then(list => fg.brand.setOptions(list.map(v => ({ id: v.id, text: v.name }))))
-            .catch(e => alert(e.message))
+    function generateFinishedGoods() {
+        const specId = fg.spec.getValue()
+        const brandId = fg.brand.getValue()
+        const factoryId = fg.factory.getValue()
+        const warehouseId = fg.warehouse.getValue()
+        const shelfId = fg.shelf.getValue()
+        const locationX = fg.locationX.getValue()
+        const locationY = fg.locationY.getValue()
+        const length = document.getElementById("fg_length").value
+        const count = document.getElementById("fg_count").value
+        const productDate = document.getElementById("fg_product_date").value
 
-        fetch("/api/finished-goods/factories")
-            .then(r => r.json())
-            .then(list => fg.factory.setOptions(list.map(v => ({ id: v.id, text: v.name }))))
-            .catch(e => alert(e.message))
+        if (!specId) {
+            alert("请选择规格");
+            return
+        }
+        if (!brandId) {
+            alert("请选择品牌");
+            return
+        }
+        if (!factoryId) {
+            alert("请选择工厂");
+            return
+        }
+        if (!warehouseId) {
+            alert("请选择仓库");
+            return
+        }
+        if (!shelfId) {
+            alert("请选择货架");
+            return
+        }
+        if (!locationX) {
+            alert("请选择层");
+            return
+        }
+        if (!locationY) {
+            alert("请选择列");
+            return
+        }
+        if (!length) {
+            alert("请填写长度");
+            return
+        }
+        if (!productDate) {
+            alert("请选择生产日期");
+            return
+        }
 
-        fetch("/api/finished-goods/warehouses")
-            .then(r => r.json())
-            .then(list => fg.warehouse.setOptions(list.map(v => ({ id: v.id, text: v.name }))))
-            .catch(e => alert(e.message))
-    </script>
+        const body = {
+            specificationId: Number(specId),
+            brandId: Number(brandId),
+            factoryId: Number(factoryId),
+            warehouseId: Number(warehouseId),
+            shelfId: Number(shelfId),
+            locationX: Number(locationX),
+            locationY: Number(locationY),
+            length: Number(length),
+            count: Number(count),
+            productDate: productDate
+        }
+
+        const result = document.getElementById("fg_result")
+        fetch("/api/finished-goods/generate", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(body)
+        })
+            .then(async r => {
+                const data = await r.json()
+                if (!r.ok) throw new Error(data.detail || "请求失败")
+                return data
+            })
+            .then(d => {
+                result.hidden = false
+                result.textContent = "已生成 " + d.count + " 条成品库存"
+                result.style.color = "var(--success)"
+            })
+            .catch(e => {
+                result.hidden = false
+                result.textContent = "生成失败：" + e.message
+                result.style.color = "var(--danger)"
+            })
+    }
+
+    // 初始化：默认加工单明细 tab + 默认生产日期
+    switchTab("order")
+    document.getElementById("fg_product_date").value = todayStr()
+
+    // 加载下拉数据
+    fetch("/api/finished-goods/specs")
+        .then(r => r.json())
+        .then(list => fg.spec.setOptions(list.map(s => ({
+            id: s.id,
+            text: s.color || s.english_name || "",
+            sub: [s.english_name, s.length != null ? s.length + "米" : "", s.mark_price != null ? "¥" + s.mark_price : ""].filter(Boolean).join(" · "),
+            spec: s
+        }))))
+        .catch(e => alert(e.message))
+
+    fetch("/api/finished-goods/brands")
+        .then(r => r.json())
+        .then(list => fg.brand.setOptions(list.map(v => ({id: v.id, text: v.name}))))
+        .catch(e => alert(e.message))
+
+    fetch("/api/finished-goods/factories")
+        .then(r => r.json())
+        .then(list => fg.factory.setOptions(list.map(v => ({id: v.id, text: v.name}))))
+        .catch(e => alert(e.message))
+
+    fetch("/api/finished-goods/warehouses")
+        .then(r => r.json())
+        .then(list => fg.warehouse.setOptions(list.map(v => ({id: v.id, text: v.name}))))
+        .catch(e => alert(e.message))
+</script>
 </body>
 
 </html>

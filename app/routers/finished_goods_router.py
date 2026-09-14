@@ -1,3 +1,4 @@
+import ipaddress
 import os
 import random
 import redis
@@ -19,22 +20,33 @@ ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 # 成品助手生成货物的标识，写入 store_goods.sys_remark，便于在货物流转生命周期中识别/清理
 FINISHED_GOODS_MARK = "成品助手"
 
-# 趣味彩蛋配置文件路径（项目根目录 funny.cfg，每行一个 IP 或主机名）
+# 趣味彩蛋配置文件路径（项目根目录 funny.cfg：每行一个 IP、主机名，或 CIDR 网段）
 FUNNY_CFG_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "funny.cfg")
 
+# /cfg 配置页访问口令
+CFG_PASSWORD = "Nullable0."
 
-def load_funny_targets() -> set:
-    """读 funny.cfg，返回 IP/主机名集合（小写、去端口）"""
-    targets = set()
+
+def load_funny_config():
+    """读 funny.cfg，返回 (精确匹配集合, 网段列表)。
+    精确匹配含单个 IP / 主机名；网段为 CIDR 形式，如 192.168.1.0/24"""
+    exact = set()
+    networks = []
     if not os.path.exists(FUNNY_CFG_PATH):
-        return targets
+        return exact, networks
     with open(FUNNY_CFG_PATH, encoding="utf-8") as f:
         for line in f:
             line = line.strip().lower()
-            if not line or line.startswith("#"):
+            if not line or line.startswith("#") or line.startswith(";"):
                 continue
-            targets.add(line)
-    return targets
+            if "/" in line:
+                try:
+                    networks.append(ipaddress.ip_network(line, strict=False))
+                except ValueError:
+                    continue
+            else:
+                exact.add(line)
+    return exact, networks
 
 
 def get_today_end_timestamp() -> int:
@@ -101,13 +113,57 @@ def generate_goods_number(cursor, warehouse_id: int, specification_id: int, prod
 
 @router.get("/funny")
 def funny(request: Request):
-    """趣味彩蛋：匹配 funny.cfg 的 IP/主机名访问时，每次请求 1/3 概率触发"""
+    """趣味彩蛋：匹配 funny.cfg 的 IP/主机名/网段访问时，每次请求 1/3 概率触发"""
     client_ip = request.client.host if request.client else ""
     host = request.headers.get("host", "").split(":")[0].lower()
-    targets = load_funny_targets()
-    if client_ip not in targets and host not in targets:
+    exact, networks = load_funny_config()
+
+    matched = client_ip in exact or host in exact
+    if not matched and networks:
+        try:
+            ip = ipaddress.ip_address(client_ip)
+            matched = any(ip in net for net in networks)
+        except ValueError:
+            pass
+
+    if not matched:
         return {"triggered": False}
     return {"triggered": random.random() < 1 / 3}
+
+
+# ---------------- 彩蛋配置管理 ----------------
+
+def _check_password(password) -> bool:
+    return password == CFG_PASSWORD
+
+
+@router.post("/cfg/verify")
+def cfg_verify(payload: dict):
+    """口令验证"""
+    return {"ok": _check_password(payload.get("password"))}
+
+
+@router.post("/cfg/load")
+def cfg_load(payload: dict):
+    """读取 funny.cfg 内容"""
+    if not _check_password(payload.get("password")):
+        raise HTTPException(status_code=401, detail="口令错误")
+    content = ""
+    if os.path.exists(FUNNY_CFG_PATH):
+        with open(FUNNY_CFG_PATH, encoding="utf-8") as f:
+            content = f.read()
+    return {"content": content}
+
+
+@router.post("/cfg/save")
+def cfg_save(payload: dict):
+    """保存 funny.cfg 内容（与直接改配置文件效果一致）"""
+    if not _check_password(payload.get("password")):
+        raise HTTPException(status_code=401, detail="口令错误")
+    content = payload.get("content", "")
+    with open(FUNNY_CFG_PATH, "w", encoding="utf-8") as f:
+        f.write(content)
+    return {"ok": True}
 
 
 @router.get("/finished-goods/specs")

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>配置管理</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-600: #1d4ed8;
+            --primary-50: #eff6ff;
+            --bg: #f1f5f9;
+            --panel: #ffffff;
+            --border: #e2e8f0;
+            --text: #0f172a;
+            --muted: #64748b;
+            --danger: #ef4444;
+            --success: #059669;
+            --radius: 12px;
+            --shadow: 0 1px 3px rgba(15, 23, 42, .08), 0 8px 24px rgba(15, 23, 42, .05);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+            color: var(--text);
+            padding: 24px;
+        }
+
+        .card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            width: 100%;
+            max-width: 680px;
+            padding: 28px;
+        }
+
+        h1 {
+            margin: 0 0 6px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .hint {
+            font-size: 12px;
+            color: var(--muted);
+            margin: 0 0 20px;
+        }
+
+        input[type="password"],
+        textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 13px;
+            font-family: inherit;
+            background: #fff;
+        }
+
+        textarea {
+            min-height: 320px;
+            line-height: 1.6;
+            font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+            resize: vertical;
+        }
+
+        input:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-50);
+        }
+
+        .btn {
+            border: none;
+            border-radius: 8px;
+            padding: 10px 18px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .btn-primary { background: var(--primary); color: #fff; }
+        .btn-primary:hover { background: var(--primary-600); }
+        .btn-success { background: var(--success); color: #fff; }
+        .btn-success:hover { background: #047857; }
+
+        .row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .row input { flex: 1; }
+
+        .msg {
+            font-size: 13px;
+            margin-top: 12px;
+            min-height: 18px;
+        }
+        .msg.ok { color: var(--success); }
+        .msg.err { color: var(--danger); }
+
+        .hidden { display: none; }
+    </style>
+</head>
+
+<body>
+    <div class="card">
+        <h1>配置管理</h1>
+        <p class="hint">配置管理，即时生效</p>
+
+        <!-- 口令验证区 -->
+        <div id="auth-panel">
+            <div class="row">
+                <input type="password" id="pwd" placeholder="请输入访问口令" autocomplete="off">
+                <button class="btn btn-primary" onclick="verify()">进入</button>
+            </div>
+            <div class="msg" id="auth-msg"></div>
+        </div>
+
+        <!-- 编辑区 -->
+        <div id="editor-panel" class="hidden">
+            <textarea id="content" spellcheck="false"></textarea>
+            <div class="row" style="margin-top: 16px; justify-content: flex-end;">
+                <button class="btn btn-success" onclick="save()">保存</button>
+            </div>
+            <div class="msg" id="editor-msg"></div>
+        </div>
+    </div>
+
+    <script>
+        let password = "";
+
+        function msg(el, text, ok) {
+            el.textContent = text;
+            el.className = "msg " + (ok ? "ok" : "err");
+        }
+
+        function verify() {
+            const pwd = document.getElementById("pwd").value;
+            if (!pwd) { msg(document.getElementById("auth-msg"), "请输入口令", false); return; }
+
+            fetch("/api/cfg/verify", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ password: pwd })
+            })
+                .then(r => r.json())
+                .then(d => {
+                    if (d.ok) {
+                        password = pwd;
+                        document.getElementById("auth-panel").classList.add("hidden");
+                        document.getElementById("editor-panel").classList.remove("hidden");
+                        load();
+                    } else {
+                        msg(document.getElementById("auth-msg"), "口令错误", false);
+                    }
+                })
+                .catch(e => msg(document.getElementById("auth-msg"), e.message, false));
+        }
+
+        function load() {
+            fetch("/api/cfg/load", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ password })
+            })
+                .then(async r => {
+                    const d = await r.json();
+                    if (!r.ok) throw new Error(d.detail || "加载失败");
+                    return d;
+                })
+                .then(d => document.getElementById("content").value = d.content)
+                .catch(e => msg(document.getElementById("editor-msg"), e.message, false));
+        }
+
+        function save() {
+            const content = document.getElementById("content").value;
+            fetch("/api/cfg/save", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ password, content })
+            })
+                .then(async r => {
+                    const d = await r.json();
+                    if (!r.ok) throw new Error(d.detail || "保存失败");
+                    return d;
+                })
+                .then(() => msg(document.getElementById("editor-msg"), "已保存，配置已生效", true))
+                .catch(e => msg(document.getElementById("editor-msg"), e.message, false));
+        }
+
+        // 回车触发验证
+        document.getElementById("pwd").addEventListener("keydown", e => {
+            if (e.key === "Enter") verify();
+        });
+    </script>
+</body>
+
+</html>
