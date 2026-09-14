@@ -9,7 +9,7 @@ REMOTE_USER="root"
 REMOTE_HOST="192.168.200.203"
 REMOTE_DIR="/www/server/docker_project"
 
-export https_proxy=http://127.0.0.1:37535 http_proxy=http://127.0.0.1:37535 all_proxy=socks5://127.0.0.1:37535
+export https_proxy=http://127.0.0.1:7899 http_proxy=http://127.0.0.1:7899 all_proxy=socks5://127.0.0.1:7899
 
 echo "进入项目目录..."
 cd ${PROJECT_DIR}
