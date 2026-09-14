@@ -433,6 +433,98 @@
             padding-top: 12px;
         }
 
+        /* ---------- 成品助手 ---------- */
+
+        .finished-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            padding: 20px;
+        }
+
+        .finished-form label {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .finished-form .field-full {
+            grid-column: 1 / -1;
+        }
+
+        .finished-form input,
+        .finished-form select {
+            padding: 8px 10px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 13px;
+            width: 100%;
+            background: #fff;
+        }
+
+        .finished-form input:focus,
+        .finished-form select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-50);
+        }
+
+        .shelf-row {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+        }
+
+        .ss {
+            position: relative;
+        }
+
+        .ss-dropdown {
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            right: 0;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            max-height: 260px;
+            overflow-y: auto;
+            z-index: 20;
+        }
+
+        .ss-option {
+            padding: 8px 12px;
+            font-size: 13px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .ss-option:last-child {
+            border-bottom: none;
+        }
+
+        .ss-option:hover,
+        .ss-option.hover {
+            background: var(--primary-50);
+        }
+
+        .ss-option .ss-sub {
+            display: block;
+            font-size: 11px;
+            color: var(--muted);
+        }
+
+        .finished-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            padding: 0 20px 20px;
+        }
+
         /* ---------- 标签卡片 ---------- */
 
         .card-container {
@@ -684,8 +776,8 @@
             </div>
         </div>
         <nav class="side-nav">
-            <a href="#order-panel" class="nav-item active">加工单明细</a>
-            <a href="#label-panel" class="nav-item">标签预览</a>
+            <a href="#" class="nav-item active" data-tab="order" onclick="switchTab('order'); return false;">加工单明细</a>
+            <a href="#" class="nav-item" data-tab="finished" onclick="switchTab('finished'); return false;">成品助手</a>
         </nav>
         <div class="side-foot">
             <p>支持输入 <b>加工单 ID</b>，或 <b>P 开头</b>的货物唯一码（逗号 / 换行分隔）。</p>
@@ -694,7 +786,7 @@
     </aside>
 
     <main class="content">
-        <section class="toolbar">
+        <section class="toolbar" data-tab="order">
             <div class="search-box">
                 <input id="orderId" placeholder="输入加工单 ID 或货物唯一码">
             </div>
@@ -702,7 +794,7 @@
             <button class="btn btn-success" onclick="submitData()">一键生成</button>
         </section>
 
-        <section id="order-panel" class="panel">
+        <section id="order-panel" class="panel" data-tab="order">
             <div class="panel-head">
                 <h2>加工单明细</h2>
                 <span class="panel-hint">分切产物需填写涂布日期</span>
@@ -710,13 +802,86 @@
             <div id="container"></div>
         </section>
 
-        <section id="label-panel" class="panel">
+        <section id="label-panel" class="panel" data-tab="order">
             <div class="panel-head">
                 <h2>标签预览</h2>
             </div>
             <div id="cardContainer" class="card-container">
                 <div class="empty">查询或生成后在此显示标签</div>
             </div>
+        </section>
+
+        <section id="finished-goods-panel" class="panel" data-tab="finished">
+            <div class="panel-head">
+                <h2>成品助手</h2>
+                <span class="panel-hint">生成 store_goods 成品库存（已入库状态）</span>
+            </div>
+            <div class="finished-form">
+                <label class="field-full">规格名称
+                    <div class="ss">
+                        <input id="fg_spec_input" class="ss-input" placeholder="搜索规格名称（中文/英文）" autocomplete="off">
+                        <input type="hidden" id="fg_spec">
+                        <div class="ss-dropdown" id="fg_spec_dd" hidden></div>
+                    </div>
+                </label>
+                <label>品牌
+                    <div class="ss">
+                        <input id="fg_brand_input" class="ss-input" placeholder="搜索品牌" autocomplete="off">
+                        <input type="hidden" id="fg_brand">
+                        <div class="ss-dropdown" id="fg_brand_dd" hidden></div>
+                    </div>
+                </label>
+                <label>工厂
+                    <div class="ss">
+                        <input id="fg_factory_input" class="ss-input" placeholder="搜索工厂" autocomplete="off">
+                        <input type="hidden" id="fg_factory">
+                        <div class="ss-dropdown" id="fg_factory_dd" hidden></div>
+                    </div>
+                </label>
+                <label>长度（米）
+                    <input id="fg_length" type="number" min="0" step="any" placeholder="选中规格后自动带出">
+                </label>
+                <label>数量
+                    <input id="fg_count" type="number" min="1" value="1">
+                </label>
+                <label>生产日期
+                    <input id="fg_product_date" type="date">
+                </label>
+                <label>仓库
+                    <div class="ss">
+                        <input id="fg_warehouse_input" class="ss-input" placeholder="搜索仓库" autocomplete="off">
+                        <input type="hidden" id="fg_warehouse">
+                        <div class="ss-dropdown" id="fg_warehouse_dd" hidden></div>
+                    </div>
+                </label>
+                <div class="shelf-row">
+                    <label>货架
+                        <div class="ss">
+                            <input id="fg_shelf_input" class="ss-input" placeholder="搜索货架" autocomplete="off">
+                            <input type="hidden" id="fg_shelf">
+                            <div class="ss-dropdown" id="fg_shelf_dd" hidden></div>
+                        </div>
+                    </label>
+                    <label>层（X）
+                        <div class="ss">
+                            <input id="fg_location_x_input" class="ss-input" placeholder="输入层数" autocomplete="off">
+                            <input type="hidden" id="fg_location_x">
+                            <div class="ss-dropdown" id="fg_location_x_dd" hidden></div>
+                        </div>
+                    </label>
+                    <label>列 / 仓位（Y）
+                        <div class="ss">
+                            <input id="fg_location_y_input" class="ss-input" placeholder="输入仓位数" autocomplete="off">
+                            <input type="hidden" id="fg_location_y">
+                            <div class="ss-dropdown" id="fg_location_y_dd" hidden></div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+            <div class="finished-actions">
+                <button class="btn btn-success" onclick="generateFinishedGoods()">生成成品库存</button>
+            </div>
+            <div id="fg_result" class="empty" style="margin: 0 20px 20px;" hidden></div>
         </section>
     </main>
 
@@ -1147,6 +1312,194 @@
         function esc(s) {
             return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
         }
+
+        /* ---------- 页面切换 ---------- */
+
+        function switchTab(tab) {
+            document.querySelectorAll(".nav-item").forEach(n => n.classList.toggle("active", n.dataset.tab === tab))
+            // 只切换面板与工具栏，排除带 data-tab 的 nav-item 本身
+            document.querySelectorAll(".panel[data-tab], .toolbar[data-tab]").forEach(el => {
+                el.style.display = el.dataset.tab === tab ? "" : "none"
+            })
+        }
+
+        /* ---------- 成品助手 ---------- */
+
+        // 通用可搜索下拉：input 本地过滤，点击选项回填 hidden 值
+        function bindSearchable(inputId, ddId, valueId, onPick) {
+            const input = document.getElementById(inputId)
+            const dd = document.getElementById(ddId)
+            const value = document.getElementById(valueId)
+            let options = []
+            let currentList = []
+
+            function render(list) {
+                currentList = list
+                dd.innerHTML = list.map((o, i) => `
+                    <div class="ss-option" data-i="${i}">
+                        ${esc(o.text)}
+                        ${o.sub ? `<span class="ss-sub">${esc(o.sub)}</span>` : ""}
+                    </div>
+                `).join("")
+                dd.hidden = list.length === 0
+            }
+
+            function filter() {
+                const kw = input.value.trim().toLowerCase()
+                const list = kw ? options.filter(o => (o.text + " " + (o.sub || "")).toLowerCase().includes(kw)) : options
+                render(list)
+            }
+
+            input.addEventListener("input", filter)
+            input.addEventListener("focus", filter)
+            input.addEventListener("blur", () => setTimeout(() => dd.hidden = true, 200))
+            dd.addEventListener("mousedown", (e) => {
+                const opt = e.target.closest(".ss-option")
+                if (!opt) return
+                const o = currentList[Number(opt.dataset.i)]
+                value.value = o.id
+                input.value = o.text
+                dd.hidden = true
+                if (onPick) onPick(o)
+            })
+
+            return {
+                setOptions(list) { options = list },
+                getValue() { return value.value },
+                clear() { value.value = ""; input.value = ""; dd.hidden = true }
+            }
+        }
+
+        const fg = {
+            spec: bindSearchable("fg_spec_input", "fg_spec_dd", "fg_spec", o => {
+                if (o.spec && o.spec.length != null) document.getElementById("fg_length").value = o.spec.length
+            }),
+            brand: bindSearchable("fg_brand_input", "fg_brand_dd", "fg_brand"),
+            factory: bindSearchable("fg_factory_input", "fg_factory_dd", "fg_factory"),
+            warehouse: bindSearchable("fg_warehouse_input", "fg_warehouse_dd", "fg_warehouse", o => loadShelves(o.id)),
+            shelf: bindSearchable("fg_shelf_input", "fg_shelf_dd", "fg_shelf", o => renderLocationOptions(o)),
+            locationX: bindSearchable("fg_location_x_input", "fg_location_x_dd", "fg_location_x"),
+            locationY: bindSearchable("fg_location_y_input", "fg_location_y_dd", "fg_location_y")
+        }
+
+        // 根据货架的 height(层数=X)/width(每层仓位数=Y) 渲染层、列下拉（支持输入数字筛选）
+        function renderLocationOptions(shelf) {
+            if (!shelf) {
+                fg.locationX.setOptions([])
+                fg.locationX.clear()
+                fg.locationY.setOptions([])
+                fg.locationY.clear()
+                return
+            }
+            const xList = []
+            for (let i = 1; i <= shelf.height; i++) xList.push({ id: i, text: "第 " + i + " 层" })
+            fg.locationX.setOptions(xList)
+
+            const yList = []
+            for (let j = 1; j <= shelf.width; j++) yList.push({ id: j, text: "第 " + j + " 仓" })
+            fg.locationY.setOptions(yList)
+        }
+
+        function loadShelves(warehouseId) {
+            if (!warehouseId) {
+                fg.shelf.setOptions([])
+                fg.shelf.clear()
+                renderLocationOptions(null)
+                return
+            }
+            fetch("/api/finished-goods/shelves?warehouseId=" + warehouseId)
+                .then(r => r.json())
+                .then(list => fg.shelf.setOptions(list.map(v => ({ id: v.id, text: v.number, width: v.width, height: v.height }))))
+                .catch(e => alert(e.message))
+        }
+
+        function generateFinishedGoods() {
+            const specId = fg.spec.getValue()
+            const brandId = fg.brand.getValue()
+            const factoryId = fg.factory.getValue()
+            const warehouseId = fg.warehouse.getValue()
+            const shelfId = fg.shelf.getValue()
+            const locationX = fg.locationX.getValue()
+            const locationY = fg.locationY.getValue()
+            const length = document.getElementById("fg_length").value
+            const count = document.getElementById("fg_count").value
+            const productDate = document.getElementById("fg_product_date").value
+
+            if (!specId) { alert("请选择规格"); return }
+            if (!brandId) { alert("请选择品牌"); return }
+            if (!factoryId) { alert("请选择工厂"); return }
+            if (!warehouseId) { alert("请选择仓库"); return }
+            if (!shelfId) { alert("请选择货架"); return }
+            if (!locationX) { alert("请选择层"); return }
+            if (!locationY) { alert("请选择列"); return }
+            if (!length) { alert("请填写长度"); return }
+            if (!productDate) { alert("请选择生产日期"); return }
+
+            const body = {
+                specificationId: Number(specId),
+                brandId: Number(brandId),
+                factoryId: Number(factoryId),
+                warehouseId: Number(warehouseId),
+                shelfId: Number(shelfId),
+                locationX: Number(locationX),
+                locationY: Number(locationY),
+                length: Number(length),
+                count: Number(count),
+                productDate: productDate
+            }
+
+            const result = document.getElementById("fg_result")
+            fetch("/api/finished-goods/generate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body)
+            })
+                .then(async r => {
+                    const data = await r.json()
+                    if (!r.ok) throw new Error(data.detail || "请求失败")
+                    return data
+                })
+                .then(d => {
+                    result.hidden = false
+                    result.textContent = "已生成 " + d.count + " 条成品库存"
+                    result.style.color = "var(--success)"
+                })
+                .catch(e => {
+                    result.hidden = false
+                    result.textContent = "生成失败：" + e.message
+                    result.style.color = "var(--danger)"
+                })
+        }
+
+        // 初始化：默认加工单明细 tab + 默认生产日期
+        switchTab("order")
+        document.getElementById("fg_product_date").value = todayStr()
+
+        // 加载下拉数据
+        fetch("/api/finished-goods/specs")
+            .then(r => r.json())
+            .then(list => fg.spec.setOptions(list.map(s => ({
+                id: s.id,
+                text: s.color || s.english_name || "",
+                sub: [s.english_name, s.length != null ? s.length + "米" : "", s.mark_price != null ? "¥" + s.mark_price : ""].filter(Boolean).join(" · "),
+                spec: s
+            }))))
+            .catch(e => alert(e.message))
+
+        fetch("/api/finished-goods/brands")
+            .then(r => r.json())
+            .then(list => fg.brand.setOptions(list.map(v => ({ id: v.id, text: v.name }))))
+            .catch(e => alert(e.message))
+
+        fetch("/api/finished-goods/factories")
+            .then(r => r.json())
+            .then(list => fg.factory.setOptions(list.map(v => ({ id: v.id, text: v.name }))))
+            .catch(e => alert(e.message))
+
+        fetch("/api/finished-goods/warehouses")
+            .then(r => r.json())
+            .then(list => fg.warehouse.setOptions(list.map(v => ({ id: v.id, text: v.name }))))
+            .catch(e => alert(e.message))
     </script>
 </body>
 
