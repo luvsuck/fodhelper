@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>加工单助手</title>
+    <title>二门</title>
 
     <style>
         :root {
@@ -771,13 +771,13 @@
         <div class="brand">
             <div class="brand-logo">工</div>
             <div class="brand-text">
-                <div class="brand-name">加工单助手</div>
+                <div class="brand-name">二门</div>
                 <div class="brand-sub">货物生成 · 标签打印</div>
             </div>
         </div>
         <nav class="side-nav">
-            <a href="#" class="nav-item active" data-tab="order" onclick="switchTab('order'); return false;">加工单明细</a>
-            <a href="#" class="nav-item" data-tab="finished" onclick="switchTab('finished'); return false;">成品助手</a>
+            <a href="#" class="nav-item active" data-tab="order" onclick="switchTab('order'); return false;">加工单助手</a>
+            <a href="#" class="nav-item" data-tab="finished" onclick="switchTab('finished'); return false;">挡风玻璃助手</a>
         </nav>
         <div class="side-foot">
             <p>支持输入 <b>加工单 ID</b>，或 <b>P 开头</b>的货物唯一码（逗号 / 换行分隔）。</p>
@@ -796,7 +796,7 @@
 
         <section id="order-panel" class="panel" data-tab="order">
             <div class="panel-head">
-                <h2>加工单明细</h2>
+                <h2>加工单助手</h2>
                 <span class="panel-hint">分切产物需填写涂布日期</span>
             </div>
             <div id="container"></div>
@@ -813,8 +813,8 @@
 
         <section id="finished-goods-panel" class="panel" data-tab="finished">
             <div class="panel-head">
-                <h2>成品助手</h2>
-                <span class="panel-hint">生成 store_goods 成品库存（已入库状态）</span>
+                <h2>挡风玻璃助手</h2>
+                <span class="panel-hint">快速生成测试用成品库存数据</span>
             </div>
             <div class="finished-form">
                 <label class="field-full">规格名称
@@ -879,7 +879,7 @@
                 </div>
             </div>
             <div class="finished-actions">
-                <button class="btn btn-success" onclick="generateFinishedGoods()">生成成品库存</button>
+                <button class="btn btn-success" onclick="generateFinishedGoods()">生成库存</button>
             </div>
             <div id="fg_result" class="empty" style="margin: 0 20px 20px;" hidden></div>
         </section>

@@ -181,6 +181,29 @@ def generate(item: FinishedGoodsItem):
 
             length = item.length if item.length else spec["length"]
             mark_price = spec["mark_price"]
+            std_length = spec["length"]  # 规格标准长度（米）
+
+            # 查规格+工厂对应的工厂成本价（分，对应标准长度），并按实际长度换算
+            cursor.execute(
+                """
+                SELECT fp.CostPrice
+                FROM biz_purchase_specification_factory_price fp
+                JOIN biz_purchase_specification ps ON fp.PurchaseSpecificationId = ps.PurchaseSpecificationId
+                WHERE ps.SpecificationId = %s AND fp.FactoryId = %s AND fp.Deleted = 0
+                LIMIT 1
+                """,
+                (item.specificationId, item.factoryId),
+            )
+            price_row = cursor.fetchone()
+            if price_row and price_row["CostPrice"] is not None:
+                cost_price_fen = price_row["CostPrice"]  # 分
+                if std_length and std_length > 0:
+                    # 长度非标准时按比例换算，四舍五入保留两位小数
+                    cost = round(cost_price_fen * length / (std_length * 100), 2)
+                else:
+                    cost = round(cost_price_fen / 100, 2)
+            else:
+                cost = mark_price  # 无工厂价时兜底用建议零售价
 
             product_date = datetime.strptime(item.productDate, "%Y-%m-%d")
 
@@ -192,13 +215,13 @@ def generate(item: FinishedGoodsItem):
                     """
                     INSERT INTO store_goods
                         (warehouse_id, specification_id, brand_id, factory_id, number, length,
-                         mark_price, cost_price, sell_price, pack, waste, montage, status,
+                         mark_price, production_cost, cost_price, sell_price, pack, waste, montage, status,
                          product_date, stock_time, create_time, update_time, sys_remark)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, 1, 0, 0, 2, %s, %s, %s, %s, %s)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 1, 0, 0, 2, %s, %s, %s, %s, %s)
                     """,
                     (
                         item.warehouseId, item.specificationId, item.brandId, item.factoryId,
-                        number, length, mark_price, mark_price, mark_price,
+                        number, length, mark_price, cost, cost, mark_price,
                         product_date, datetime.now(), datetime.now(), datetime.now(),
                         FINISHED_GOODS_MARK,
                     ),
