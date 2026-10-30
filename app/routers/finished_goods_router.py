@@ -291,6 +291,15 @@ def generate(item: FinishedGoodsItem):
             else:
                 cost = mark_price  # 无工厂价时兜底用建议零售价
 
+            cursor.execute(
+                "SELECT name FROM store_brand WHERE id = %s",
+                (item.brandId,),
+            )
+            brand = cursor.fetchone()
+            if not brand:
+                raise HTTPException(status_code=404, detail="品牌不存在")
+            pack = 1 if brand["name"].strip() == "无品牌" else 2
+
             product_date = datetime.strptime(item.productDate, "%Y-%m-%d")
 
             inserted = 0
@@ -303,11 +312,11 @@ def generate(item: FinishedGoodsItem):
                         (warehouse_id, specification_id, brand_id, factory_id, number, length,
                          mark_price, production_cost, cost_price, sell_price, pack, waste, montage, status,
                          product_date, stock_time, create_time, update_time, sys_remark)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 1, 0, 0, 2, %s, %s, %s, %s, %s)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 0, 0, 2, %s, %s, %s, %s, %s)
                     """,
                     (
                         item.warehouseId, item.specificationId, item.brandId, item.factoryId,
-                        number, length, mark_price, cost, cost, mark_price,
+                        number, length, mark_price, cost, cost, mark_price, pack,
                         product_date, datetime.now(), datetime.now(), datetime.now(),
                         FINISHED_GOODS_MARK,
                     ),
